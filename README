@@ -1,0 +1,35 @@
+Sitemap
+=======
+
+This plugin will generate a sitemap.xml from sitemap.rb whose format likes routes.rb
+
+
+Install
+=======
+
+1. install dependency gem builder
+  sudo gem install builder
+
+2. install sitemap plugin
+  script/plugin install git://github.com/flyerhzm/sitemap.git
+
+
+Example
+=======
+
+1. Define config/sitemap.rb
+
+  Sitemap::Routes.host = 'http://www.sitemap.com'
+
+  Sitemap::Routes.draw do |map|
+    # The format is the same as config/routes.rb.
+    # Just parse resources now, TODO others
+    map.resources :posts, :collection => {:all => :get}, :member => {:display => :get}, :has_many => :comments
+  end
+
+2. run  rake sitemap:generate, the sitemap.xml will be generated under public directory
+
+
+
+
+Copyright (c) 2009 Richard Huang (flyerhzm@gmail.com), released under the MIT license
