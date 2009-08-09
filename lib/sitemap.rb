@@ -51,7 +51,7 @@ module Sitemap
           items = path.split('/')
           if items[2].nil?
             @@paths << prefix + path
-          elsif items[2].start_with?(':')
+          elsif items[2] =~ /^:.*id$/
             objects = parent.nil? ? Object.const_get(items[1].singularize.camelize).all : parent.send(items[1])
             objects.each do |obj|
               if items.size > 3
