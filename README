@@ -49,8 +49,8 @@ Example
     map.sitemap '/sitemap', :controller => 'sitemaps', :action => 'index'
 
     # nested routes
-    map.resources :categories do |category|
-      category.resources :posts
+    map.resources :categories, :except => ['index', 'show'] do |category|
+      category.resources :posts, :except => 'show'
     end
 
     # define priority for special route, this can be applied to every route
