@@ -47,25 +47,29 @@ module Sitemap
       end
 
       def parse_path(path, prefix, parent)
-        items = path.split('/')
-        if items[2].nil?
-          @@paths << prefix + path
-        elsif items[2].start_with?(':')
-          objects = parent.nil? ? Object.const_get(items[1].singularize.camelize).all : parent.send(items[1])
-          objects.each do |obj|
-            if items.size > 3
-              parse_path('/' + items[3..-1].join('/'), "#{prefix}/#{items[1]}/#{obj.to_param}", obj)
+        begin
+          items = path.split('/')
+          if items[2].nil?
+            @@paths << prefix + path
+          elsif items[2].start_with?(':')
+            objects = parent.nil? ? Object.const_get(items[1].singularize.camelize).all : parent.send(items[1])
+            objects.each do |obj|
+              if items.size > 3
+                parse_path('/' + items[3..-1].join('/'), "#{prefix}/#{items[1]}/#{obj.to_param}", obj)
+              else
+                @@paths << "#{prefix}/#{items[1]}/#{obj.to_param}"
+              end
+            end
+            return nil
+          else
+            if items.size > 2
+              parse_path('/' + items[2..-1].join('/'), "#{prefix}/#{items[1]}", nil)
             else
-              @@paths << "#{prefix}/#{items[1]}/#{obj.to_param}"
+              @@paths << prefix + path
             end
           end
-          return nil
-        else
-          if items.size > 2
-            parse_path('/' + items[2..-1].join('/'), "#{prefix}/#{items[1]}", nil)
-          else
-            @@paths << prefix + path
-          end
+        rescue
+          puts "can't parse path: #{path}, prefix: #{prefix}, parent: #{parent}"
         end
       end
     end
