@@ -17,7 +17,7 @@ h2. Install
 
 h2. Example
 
-1. Define <code>config/sitemap.rb</code>
+1. Create <code>config/sitemap.rb</code> file, or you can copy <code>config/routes.rb</code> to <code>config/sitemap.rb</code>
 
   At first, you should define host (required) and default priority (optional) for sitemap.
 
@@ -28,7 +28,7 @@ h2. Example
 
   Then, you can define the routes for sitemap.
 
-  <pre><code>
+  <pre>
   Sitemap::Routes.draw do |map|
     # resources routes
     map.resources :posts, :collection => {:all => :get}, :member => {:display => :get}, :has_many => :comments
@@ -59,11 +59,11 @@ h2. Example
     map.sitemap '/sitemap', :controller => 'sitemaps', :action => 'index', :priority => 0.8
     map.root :controller => 'posts', :action => 'index', :priority => 0.5
   end
-  </code></pre>
+  </pre>
 
 2. run <code>rake sitemap:generate</code>, the <code>sitemap.xml</code> (version 0.9) will be generated under public directory
  
-  <pre><code>
+  <pre>
   <?xml version="1.0" encoding="UTF-8"?>
   <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
@@ -157,7 +157,7 @@ h2. Example
       <priority>1.0</priority>
     </url>
   </urlset> 
-  </code></pre>
+  </pre>
   
 ***************************************************************************************
 
