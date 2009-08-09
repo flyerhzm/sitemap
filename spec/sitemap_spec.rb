@@ -23,6 +23,19 @@ describe "Sitemap::Routes" do
     end
   end
 
+  class Category
+    attr_accessor :id, :name, :posts
+
+    def initialize(id, name)
+      @id = id
+      @name = name
+    end
+
+    def to_param
+      id
+    end
+  end
+
   before(:each) do
     @post1 = Post.new(1, 'post1', DateTime.new(2009, 8, 9, 0, 0, 0))
     @post2 = Post.new(2, 'post2', DateTime.new(2009, 8, 10, 0, 0, 0))
@@ -88,5 +101,19 @@ describe "Sitemap::Routes" do
     end
     Sitemap::Routes.parse
     Sitemap::Routes.paths.should == ['/sitemap']
+  end
+
+  it "should parse nested resources" do
+    @category = Category.new(1, 'category')
+    @category.posts = [@post1, @post2]
+    Category.stubs(:all).returns([@category])
+
+    Sitemap::Routes.draw do |map|
+      map.resources :categories do |category|
+        category.resources :posts
+      end
+    end
+    Sitemap::Routes.parse
+    Sitemap::Routes.paths.should == ['/categories', '/categories/1', '/categories/1/posts', '/categories/1/posts/1', '/categories/1/posts/2']
   end
 end
