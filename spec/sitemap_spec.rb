@@ -68,6 +68,14 @@ describe "Sitemap::Routes" do
       Sitemap::Routes.parse
       Sitemap::Routes.results.collect {|result| result[:location]}.should == ['/posts', '/posts/1/display', '/posts/2/display', '/posts/1', '/posts/2']
     end
+
+    it "should add except" do
+      Sitemap::Routes.draw do |map|
+        map.resources :posts, :except => 'show'
+      end
+      Sitemap::Routes.parse
+      Sitemap::Routes.results.collect {|result| result[:location]}.should == ['/posts']
+    end
   end
 
   it "should parse root" do
