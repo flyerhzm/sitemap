@@ -1,18 +1,9 @@
 require 'rake'
-require 'rake/testtask'
 require 'spec/rake/spectask'
 require 'rake/rdoctask'
 
 desc 'Default: run unit tests.'
-task :default => :test
-
-desc 'Test the sitemap plugin.'
-Rake::TestTask.new(:test) do |t|
-  t.libs << 'lib'
-  t.libs << 'test'
-  t.pattern = 'test/**/*_test.rb'
-  t.verbose = true
-end
+task :default => :spec
 
 desc 'Generate documentation for the sitemap plugin.'
 Rake::RDocTask.new(:rdoc) do |rdoc|
