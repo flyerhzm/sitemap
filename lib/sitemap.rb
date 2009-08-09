@@ -30,7 +30,7 @@ module Sitemap
         File.open(sitemap_result_file, 'w') do |file|
           xml = Builder::XmlMarkup.new(:target => file, :indent => 2)
           xml.instruct!
-          xml.urlset(:xmlns => "http://www.sitemaps.org/schema/sitemap/0.9") do
+          xml.urlset(:xmlns => "http://www.sitemaps.org/schemas/sitemap/0.9") do
             now = Time.now.strftime("%Y-%m-%d")
             @@results.each do |result|
               xml.url do
