@@ -1,33 +1,34 @@
-Sitemap
-=======
+h1. Sitemap
 
 This plugin will generate a sitemap.xml from sitemap.rb whose format is very similar to routes.rb.
 It supports resources, namespace, root, connect, named_route and nested routes like routes.rb and add some additional keyword substitution and priority for sitemap.
 
+************************************************************************************
 
-Install
-=======
+h2. Install
 
 1. install dependency gem builder
-  sudo gem install builder
+  <pre><code>sudo gem install builder</code></pre>
 
 2. install sitemap plugin
-  script/plugin install git://github.com/flyerhzm/sitemap.git
+  <pre><code>script/plugin install git://github.com/flyerhzm/sitemap.git</code></pre>
 
+*************************************************************************************
 
-Example
-=======
+h2. Example
 
-1. Define config/sitemap.rb
+1. Define <code>config/sitemap.rb</code>
 
   At first, you should define host (required) and default priority (optional) for sitemap.
 
+  <pre><code>
   Sitemap::Routes.host = 'http://www.sitemap.com'
   Sitemap::Routes.priority = 0.8    # default is 1.0
-
+  </code></pre>
 
   Then, you can define the routes for sitemap.
 
+  <pre><code>
   Sitemap::Routes.draw do |map|
     # resources routes
     map.resources :posts, :collection => {:all => :get}, :member => {:display => :get}, :has_many => :comments
@@ -40,7 +41,10 @@ Example
       admin.resources :posts
     end
 
-    # connect routes which need additional keyword :substitution, this is a hash, one of the key/value pairs define model name, the others define which attribute value of the model replace the connect keyword. As the route defines below, the url will be replaced with "posts/#{post.year}/#{post.month}/#{post.day}", the post the object of Post
+    # connect routes which need additional keyword :substitution, 
+    # this is a hash, one of the key/value pairs define model name, 
+    # the others define which attribute value of the model replace the connect keyword. 
+    # As the route defines below, the url will be replaced with "posts/#{post.year}/#{post.month}/#{post.day}", the post the object of Post
     map.connect 'posts/:year/:month/:day', :controller => 'posts', :action => 'find_by_date', :substitution => {:model => 'Post', :year => 'year', :month => 'month', :day => 'day'}
 
     # named_route routes
@@ -55,10 +59,11 @@ Example
     map.sitemap '/sitemap', :controller => 'sitemaps', :action => 'index', :priority => 0.8
     map.root :controller => 'posts', :action => 'index', :priority => 0.5
   end
+  </code></pre>
 
-
-2. run  rake sitemap:generate, the sitemap.xml (version 0.9) will be generated under public directory
+2. run <code>rake sitemap:generate</code>, the <code>sitemap.xml</code> (version 0.9) will be generated under public directory
  
+  <pre><code>
   <?xml version="1.0" encoding="UTF-8"?>
   <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
@@ -152,6 +157,8 @@ Example
       <priority>1.0</priority>
     </url>
   </urlset> 
+  </code></pre>
   
+***************************************************************************************
 
 Copyright (c) 2009 Richard Huang (flyerhzm@gmail.com), released under the MIT license
