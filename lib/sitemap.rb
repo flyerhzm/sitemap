@@ -1,21 +1,22 @@
 require 'active_support'
+require 'action_controller'
 
 module Sitemap
   class Routes
+    cattr_writer :host
+    cattr_reader :paths
+
     class << self
       include ActiveSupport::Inflector
     end
 
     def self.draw
+      @@routes = []
       yield Mapper.new(self)
     end
 
     def self.named_routes
       {}
-    end
-
-    def self.host=(host)
-      @@host = host
     end
 
     def self.add_route(path, options)
@@ -24,10 +25,7 @@ module Sitemap
     end
 
     def self.generate(sitemap_result_file)
-      @@paths = []
-      @@routes.each do |route|
-        parse_path(route[:path], '', nil)
-      end
+      parse
 
       File.open(sitemap_result_file, 'w') do |file|
         xml = Builder::XmlMarkup.new(:target => file, :indent => 2)
@@ -35,10 +33,17 @@ module Sitemap
         xml.urlset(:xmlns => "http://www.sitemaps.org/schema/sitemap/0.9") do
           @@paths.each do |path|
             xml.url do
-              xml.loc (@@host + path)
+              xml.loc(@@host + path)
             end
           end
         end
+      end
+    end
+
+    def self.parse
+      @@paths = []
+      @@routes.each do |route|
+        parse_path(route[:path], '', nil)
       end
     end
 
@@ -82,6 +87,10 @@ module Sitemap
       if options[:conditions][:method] == :get and !['new', 'create', 'edit', 'update', 'destroy'].include?(options[:action].to_s)
         add_route(path, options)
       end
+    end
+
+    def root(options = {})
+      add_route('')
     end
 
     def add_route(path, options = {})
