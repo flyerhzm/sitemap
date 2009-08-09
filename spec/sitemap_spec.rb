@@ -49,7 +49,8 @@ describe "Sitemap::Routes" do
         map.resources :posts
       end
       Sitemap::Routes.parse
-      Sitemap::Routes.paths.should == ['/posts', '/posts/1', '/posts/2']
+      Sitemap::Routes.results.collect {|result| result[:location]}.should == ['/posts', '/posts/1', '/posts/2']
+      Sitemap::Routes.results.collect {|result| result[:priority]}.should == [1.0, 1.0, 1.0]
     end
 
     it "should add collection" do 
@@ -57,7 +58,7 @@ describe "Sitemap::Routes" do
         map.resources :posts, :collection => {:all => :get}
       end
       Sitemap::Routes.parse
-      Sitemap::Routes.paths.should == ['/posts/all', '/posts', '/posts/1', '/posts/2']
+      Sitemap::Routes.results.collect {|result| result[:location]}.should == ['/posts/all', '/posts', '/posts/1', '/posts/2']
     end
 
     it "should add member" do 
@@ -65,7 +66,7 @@ describe "Sitemap::Routes" do
         map.resources :posts, :member => {:display => :get}
       end
       Sitemap::Routes.parse
-      Sitemap::Routes.paths.should == ['/posts', '/posts/1/display', '/posts/2/display', '/posts/1', '/posts/2']
+      Sitemap::Routes.results.collect {|result| result[:location]}.should == ['/posts', '/posts/1/display', '/posts/2/display', '/posts/1', '/posts/2']
     end
   end
 
@@ -74,7 +75,7 @@ describe "Sitemap::Routes" do
       map.root :controller => 'posts', :action => 'index'
     end
     Sitemap::Routes.parse
-    Sitemap::Routes.paths.should == ['']
+    Sitemap::Routes.results.collect {|result| result[:location]}.should == ['']
   end
 
   it "should parse namespace" do
@@ -84,23 +85,25 @@ describe "Sitemap::Routes" do
       end
     end
     Sitemap::Routes.parse
-    Sitemap::Routes.paths.should == ['/admin/posts', '/admin/posts/1', '/admin/posts/2']
+    Sitemap::Routes.results.collect {|result| result[:location]}.should == ['/admin/posts', '/admin/posts/1', '/admin/posts/2']
   end
 
   it "should parse connect" do
     Sitemap::Routes.draw do |map|
-      map.connect 'posts/:year/:month/:day', :controller => 'posts', :action => 'find_by_date', :substitution => {:model => 'Post', :year => 'year', :month => 'month', :day => 'day'}
+      map.connect 'posts/:year/:month/:day', :controller => 'posts', :action => 'find_by_date', :substitution => {:model => 'Post', :year => 'year', :month => 'month', :day => 'day'}, :priority => 0.8
     end
     Sitemap::Routes.parse
-    Sitemap::Routes.paths.should == ['/posts/2009/8/9', '/posts/2009/8/10']
+    Sitemap::Routes.results.collect {|result| result[:location]}.should == ['/posts/2009/8/9', '/posts/2009/8/10']
+    Sitemap::Routes.results.collect {|result| result[:priority]}.should == [0.8, 0.8]
   end
 
   it "should parse named_route" do
     Sitemap::Routes.draw do |map|
-      map.sitemap '/sitemap', :controller => 'sitemaps', :action => 'index'
+      map.sitemap '/sitemap', :controller => 'sitemaps', :action => 'index', :priority => 0.5
     end
     Sitemap::Routes.parse
-    Sitemap::Routes.paths.should == ['/sitemap']
+    Sitemap::Routes.results.collect {|result| result[:location]}.should == ['/sitemap']
+    Sitemap::Routes.results.collect {|result| result[:priority]}.should == [0.5]
   end
 
   it "should parse nested resources" do
@@ -114,6 +117,6 @@ describe "Sitemap::Routes" do
       end
     end
     Sitemap::Routes.parse
-    Sitemap::Routes.paths.should == ['/categories', '/categories/1', '/categories/1/posts', '/categories/1/posts/1', '/categories/1/posts/2']
+    Sitemap::Routes.results.collect {|result| result[:location]}.should == ['/categories', '/categories/1', '/categories/1/posts', '/categories/1/posts/1', '/categories/1/posts/2']
   end
 end
