@@ -1,5 +1,6 @@
 require 'rake'
 require 'rake/testtask'
+require 'spec/rake/spectask'
 require 'rake/rdoctask'
 
 desc 'Default: run unit tests.'
@@ -20,4 +21,9 @@ Rake::RDocTask.new(:rdoc) do |rdoc|
   rdoc.options << '--line-numbers' << '--inline-source'
   rdoc.rdoc_files.include('README')
   rdoc.rdoc_files.include('lib/**/*.rb')
+end
+
+desc "Run all specs in spec directory"
+Spec::Rake::SpecTask.new(:spec) do |t|
+  t.spec_files = FileList['spec/spec_helper.rb', 'spec/**/*_spec.rb']
 end
