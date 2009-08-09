@@ -69,7 +69,7 @@ module Sitemap
             end
           end
         rescue
-          puts "can't parse path: #{path}, prefix: #{prefix}, parent: #{parent}"
+          puts "can't parse prefix: #{prefix}, path: #{path}, parent: #{parent}"
         end
       end
     end
@@ -93,16 +93,21 @@ module Sitemap
       end
     end
 
+    def namespace(name, &block)
+      with_options({:path_prefix => name, :name_prefix => "#{name}_", :namespace => "#{name}/"}, &block)
+    end
+
     def root(options = {})
       add_route('')
     end
 
     def add_route(path, options = {})
+      path = '/' + path if path != '' and !path.start_with?('/')
       Sitemap::Routes.add_route(path, options)
     end
 
     def method_missing(route_name, *args, &proc)
       add_route(*args)
     end
-end
+  end
 end

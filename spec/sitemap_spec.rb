@@ -53,6 +53,16 @@ describe "Sitemap::Routes" do
     Sitemap::Routes.paths.should == ['']
   end
 
+  it "should parse namespace" do
+    Sitemap::Routes.draw do |map|
+      map.namespace(:admin) do |admin|
+        admin.resources :posts
+      end
+    end
+    Sitemap::Routes.parse
+    Sitemap::Routes.paths.should == ['/admin/posts', '/admin/posts/1', '/admin/posts/2']
+  end
+
   it "should parse named_route" do
     Sitemap::Routes.draw do |map|
       map.sitemap '/sitemap', :controller => 'sitemaps', :action => 'index'
