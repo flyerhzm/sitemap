@@ -42,30 +42,43 @@ module Sitemap
       def parse
         @@paths = []
         @@routes.each do |route|
-          parse_path(route[:path], '', nil)
+          parse_path(route[:path], route[:options], '', nil)
         end
       end
 
-      def parse_path(path, prefix, parent)
+      def parse_path(path, options, prefix, parent)
         begin
-          items = path.split('/')
-          if items[2].nil?
-            @@paths << prefix + path
-          elsif items[2] =~ /^:.*id$/
-            objects = parent.nil? ? Object.const_get(items[1].singularize.camelize).all : parent.send(items[1])
-            objects.each do |obj|
-              if items.size > 3
-                parse_path('/' + items[3..-1].join('/'), "#{prefix}/#{items[1]}/#{obj.to_param}", obj)
-              else
-                @@paths << "#{prefix}/#{items[1]}/#{obj.to_param}"
+          if options[:substitution]
+            substitution = options[:substitution]
+            model_name = substitution.delete(:model)
+            klazz = Object.const_get(model_name)
+            klazz.all.each do |obj|
+              path_dup = path.dup
+              substitution.each do |key, value|
+                path_dup.gsub!(':' + key.to_s, obj.send(value).to_s)
               end
+              @@paths << path_dup
             end
-            return nil
           else
-            if items.size > 2
-              parse_path('/' + items[2..-1].join('/'), "#{prefix}/#{items[1]}", nil)
-            else
+            items = path.split('/')
+            if items[2].nil?
               @@paths << prefix + path
+            elsif items[2] =~ /^:.*id$/
+              objects = parent.nil? ? Object.const_get(items[1].singularize.camelize).all : parent.send(items[1])
+              objects.each do |obj|
+                if items.size > 3
+                  parse_path('/' + items[3..-1].join('/'), options, "#{prefix}/#{items[1]}/#{obj.to_param}", obj)
+                else
+                  @@paths << "#{prefix}/#{items[1]}/#{obj.to_param}"
+                end
+              end
+              return nil
+            else
+              if items.size > 2
+                parse_path('/' + items[2..-1].join('/'), options, "#{prefix}/#{items[1]}", nil)
+              else
+                @@paths << prefix + path
+              end
             end
           end
         rescue
@@ -82,10 +95,6 @@ module Sitemap
       @set = set
     end
 
-    def connect(path, options = {})
-      add_route(path, options)
-    end
-
     def named_route(name, path, options = {})
       path.gsub!('.:format', '')
       if options[:conditions][:method] == :get and !['new', 'create', 'edit', 'update', 'destroy'].include?(options[:action].to_s)
@@ -99,6 +108,10 @@ module Sitemap
 
     def root(options = {})
       add_route('')
+    end
+
+    def connect(path, options = {})
+      add_route(path, options)
     end
 
     def add_route(path, options = {})
