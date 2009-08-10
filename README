@@ -58,6 +58,9 @@ Example
     map.root :controller => 'posts', :action => 'index', :priority => 0.5
   end
 
+  Important: You can check the spec/sitemap_spec.rb to see the use of Sitemap::Routes
+
+
 2. run rake sitemap:generate, the sitemap.xml (version 0.9) will be generated under public directory
  
   <?xml version="1.0" encoding="UTF-8"?>
