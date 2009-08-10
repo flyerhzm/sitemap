@@ -48,6 +48,7 @@ module Sitemap
         @@routes.each do |route|
           parse_path(route[:path], route[:options], '', nil)
         end
+        @@results.uniq!
       end
 
       def parse_path(path, options, prefix, parent)

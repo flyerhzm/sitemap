@@ -105,6 +105,17 @@ describe "Sitemap::Routes" do
     Sitemap::Routes.results.collect {|result| result[:priority]}.should == [0.8, 0.8]
   end
 
+  it "should parse connect without duplicate" do
+    @post3 = Post.new(3, 'post2', DateTime.new(2009, 8, 10, 0, 0, 0))
+    Post.stubs(:all).returns([@post1, @post2, @post3])
+
+    Sitemap::Routes.draw do |map|
+      map.connect 'posts/:year/:month/:day', :controller => 'posts', :action => 'find_by_date', :substitution => {:model => 'Post', :year => 'year', :month => 'month', :day => 'day'}
+    end
+    Sitemap::Routes.parse
+    Sitemap::Routes.results.collect {|result| result[:location]}.should == ['/posts/2009/8/9', '/posts/2009/8/10']
+  end
+
   it "should parse named_route" do
     Sitemap::Routes.draw do |map|
       map.sitemap '/sitemap', :controller => 'sitemaps', :action => 'index', :priority => 0.5
