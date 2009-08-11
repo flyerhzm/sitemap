@@ -46,46 +46,62 @@ module Sitemap
       def parse
         @@results = []
         @@routes.each do |route|
-          parse_path(route[:path], route[:options], '', nil)
+          if route[:options][:substitution]
+            parse_path_with_substitution(route[:path], route[:options])
+          else
+            parse_path_without_substitution(route[:path], route[:options], '', nil)
+          end
         end
         @@results.uniq!
       end
-
-      def parse_path(path, options, prefix, parent)
-        priority = options[:priority] || @@priority
+      
+      # Parse path without substitution option. It checks url two by two (split by '/') from left to right recursively.
+      # If the second item starts with ':' and ends with 'id', replace it with the to_param of the model object.
+      # For example, the path is /categories/:category_id/posts/:id, 
+      # :category_id is replaced by category.to_param and :id is replaced by post.to_param.
+      def parse_path_without_substitution(path, options, prefix, parent)
         begin
-          if options[:substitution]
-            substitution = options[:substitution]
-            model_name = substitution.delete(:model)
-            klazz = Object.const_get(model_name)
-            klazz.all.each do |obj|
-              path_dup = path.dup
-              substitution.each do |key, value|
-                path_dup.gsub!(':' + key.to_s, obj.send(value).to_s)
-              end
-              @@results << {:location => path_dup, :priority => priority}
-            end
-          else
-            items = path.split('/')
-            if items[2].nil?
-              @@results << {:location => prefix + path, :priority => priority}
-            elsif items[2] =~ /^:.*id$/
-              objects = parent.nil? ? Object.const_get(items[1].singularize.camelize).all : parent.send(items[1])
-              objects.each do |obj|
-                if items.size > 3
-                  parse_path('/' + items[3..-1].join('/'), options, "#{prefix}/#{items[1]}/#{obj.to_param}", obj)
-                else
-                  @@results << {:location => "#{prefix}/#{items[1]}/#{obj.to_param}", :priority => priority}
-                end
-              end
-              return nil
-            else
-              if items.size > 2
-                parse_path('/' + items[2..-1].join('/'), options, "#{prefix}/#{items[1]}", nil)
+          items = path.split('/')
+          if items[2].nil?
+            # only one item, stop parsing.
+            @@results << {:location => prefix + path, :priority => options[:priority] || @@priority}
+          elsif items[2] =~ /^:.*id$/
+            # second item is an 'id', replace it.
+            objects = parent.nil? ? Object.const_get(items[1].singularize.camelize).all : parent.send(items[1])
+            objects.each do |obj|
+              if items.size > 3
+                parse_path_without_substitution('/' + items[3..-1].join('/'), options, "#{prefix}/#{items[1]}/#{obj.to_param}", obj)
               else
-                @@results << {:location => prefix + path, :priority => priority}
+                @@results << {:location => "#{prefix}/#{items[1]}/#{obj.to_param}", :priority => options[:priority] || @@priority}
               end
             end
+            return nil
+          else
+            # the path is like '/posts/pages/:page_id', second item is not an 'id', continue to parse.
+            if items.size > 2
+              parse_path_without_substitution('/' + items[2..-1].join('/'), options, "#{prefix}/#{items[1]}", nil)
+            else
+              @@results << {:location => prefix + path, :priority => options[:priority] || @@priority}
+            end
+          end
+        rescue
+          puts "can't parse prefix: #{prefix}, path: #{path}, parent: #{parent}"
+        end
+      end
+      
+      # Parse connect path or named route path who has a substitution option, such as: 
+      # map.connect 'posts/:year/:month/:day', :substitution => {:model => 'Post', :year => year, :month => month, :day => day}
+      def parse_path_with_substitution(path, options)
+        begin
+          substitution = options[:substitution]
+          model_name = substitution.delete(:model)
+          klazz = Object.const_get(model_name)
+          klazz.all.each do |obj|
+            path_dup = path.dup
+            substitution.each do |key, value|
+              path_dup.gsub!(':' + key.to_s, obj.send(value).to_s)
+            end
+            @@results << {:location => path_dup, :priority => options[:priority] || @@priority}
           end
         rescue
           puts "can't parse prefix: #{prefix}, path: #{path}, parent: #{parent}"
