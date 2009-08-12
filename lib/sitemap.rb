@@ -3,7 +3,8 @@ require 'action_controller'
 
 module Sitemap
   class Routes
-    cattr_writer :host, :priority
+    cattr_accessor :host
+    cattr_writer :priority
     cattr_reader :results
     @@priority = 1.0
 
