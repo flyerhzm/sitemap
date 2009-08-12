@@ -45,7 +45,7 @@ Example
     # As the route defines below, the url will be replaced with "posts/#{post.year}/#{post.month}/#{post.day}", the post the object of Post
     map.connect 'posts/:year/:month/:day', :controller => 'posts', :action => 'find_by_date', :substitution => {:model => 'Post', :year => 'year', :month => 'month', :day => 'day'}
 
-    # named_route routes
+    # named_route routes, these routes should use :substitution keyword if necessary
     map.sitemap '/sitemap', :controller => 'sitemaps', :action => 'index'
 
     # nested routes
