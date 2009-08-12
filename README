@@ -1,7 +1,7 @@
 Sitemap
 =======
 
-This plugin will generate a sitemap.xml from sitemap.rb whose format is very similar to routes.rb.
+This plugin will generate a sitemap.xml from sitemap.rb whose format is very similar to routes.rb, and ping search engine to update sitemap.xml.
 It supports resources, namespace, root, connect, named_route and nested routes like routes.rb and add some additional keyword substitution and priority for sitemap.
 
 
@@ -58,10 +58,16 @@ Example
     map.root :controller => 'posts', :action => 'index', :priority => 0.5
   end
 
-  Important: You can check the spec/sitemap_spec.rb to see the use of Sitemap::Routes
+  Important: You can check the spec/sitemap_spec.rb to see the use of Sitemap::Routes.
 
 
-2. run rake sitemap:generate, the sitemap.xml (version 0.9) will be generated under public directory
+2. run rake task.
+
+  rake sitemap:generate, the sitemap.xml (version 0.9) will be generated under public directory.
+
+  rake sitemap:ping or rake sitemap:ping SEARCH_ENGINE=google,bing, tell search engine to update the sitemap.xml, now support google, bing, yahoo and ask.
+
+  The generated sitemap.xml is as follows:
  
   <?xml version="1.0" encoding="UTF-8"?>
   <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
