@@ -11,7 +11,7 @@ namespace :sitemap do
 
   desc "ping search engine to update sitemap.xml (or specify SEARCH_ENGINE=names, splitted by comma)"
   task :ping => :generate do
-    engines = ENV['SEARCH_ENGINE'].nil? ? ['google', 'bing', 'yahoo', 'ask'] : ENV['SEARCH_ENGINE'].split(',')
+    engines = ENV['SEARCH_ENGINE'].nil? ? %w(google bing yahoo ask) : ENV['SEARCH_ENGINE'].split(',')
     engines.each do |engine|
       Sitemap::SearchEngine.send("ping_#{engine}")
     end
