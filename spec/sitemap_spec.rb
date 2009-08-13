@@ -116,6 +116,14 @@ describe "Sitemap::Routes" do
     Sitemap::Routes.results.collect {|result| result[:location]}.should == ['/posts/2009/8/9', '/posts/2009/8/10']
   end
 
+  it "should parse connect with substitution array" do
+    Sitemap::Routes.draw do |map|
+      map.connect 'posts/:locale', :controller => 'posts', :action => 'index', :substitution => {:locale => ['en', 'zh', 'fr']}
+    end
+    Sitemap::Routes.parse
+    Sitemap::Routes.results.collect {|result| result[:location]}.should == ['/posts/en', '/posts/zh', '/posts/fr']
+  end
+
   it "should parse named_route" do
     Sitemap::Routes.draw do |map|
       map.sitemap '/sitemap', :controller => 'sitemaps', :action => 'index', :priority => 0.5
@@ -138,4 +146,5 @@ describe "Sitemap::Routes" do
     Sitemap::Routes.parse
     Sitemap::Routes.results.collect {|result| result[:location]}.should == ['/categories', '/categories/1', '/categories/1/posts', '/categories/1/posts/1', '/categories/1/posts/2']
   end
+
 end

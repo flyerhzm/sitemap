@@ -91,18 +91,28 @@ module Sitemap
       end
       
       # Parse connect path or named route path who has a substitution option, such as: 
-      # map.connect 'posts/:year/:month/:day', :substitution => {:model => 'Post', :year => year, :month => month, :day => day}
+      # map.connect 'posts/:year/:month/:day', :substitution => {:model => 'Post', :year => year, :month => month, :day => day} or
+      # map.connect 'posts/:locale, :substitution => {:locale => ['en', 'zh', 'fr']}
       def parse_path_with_substitution(path, options)
         begin
           substitution = options[:substitution]
           model_name = substitution.delete(:model)
-          klazz = Object.const_get(model_name)
-          klazz.all.each do |obj|
-            path_dup = path.dup
-            substitution.each do |key, value|
-              path_dup.gsub!(':' + key.to_s, obj.send(value).to_s)
+          if model_name.nil?
+            key = substitution.keys.first
+            substitution.values.first.each do |value|
+              path_dup = path.dup
+              path_dup.gsub!(':' + key.to_s, value)
+              @@results << {:location => path_dup, :priority => options[:priority] || @@priority}
             end
-            @@results << {:location => path_dup, :priority => options[:priority] || @@priority}
+          else
+            klazz = Object.const_get(model_name)
+            klazz.all.each do |obj|
+              path_dup = path.dup
+              substitution.each do |key, value|
+                path_dup.gsub!(':' + key.to_s, obj.send(value).to_s)
+              end
+              @@results << {:location => path_dup, :priority => options[:priority] || @@priority}
+            end
           end
         rescue
           puts "can't parse prefix: #{prefix}, path: #{path}, parent: #{parent}"
