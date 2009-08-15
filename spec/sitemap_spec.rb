@@ -180,6 +180,14 @@ describe "Sitemap::Routes" do
       Sitemap::Routes.parse
       Sitemap::Routes.results.collect {|result| result[:changefreq]}.should == ['monthly', 'monthly']
     end
+
+    it "should parse root" do
+      Sitemap::Routes.draw do |map|
+        map.root :controller => 'posts', :action => 'index', :changefreq => Sitemap::ChangeFreq::MONTHLY
+      end
+      Sitemap::Routes.parse
+      Sitemap::Routes.results.collect {|result| result[:changefreq]}.should == ['monthly']
+    end
   end
 
 end

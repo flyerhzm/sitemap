@@ -151,7 +151,7 @@ module Sitemap
     end
 
     def root(options = {})
-      add_route('')
+      add_route('', options)
     end
 
     def connect(path, options = {})
