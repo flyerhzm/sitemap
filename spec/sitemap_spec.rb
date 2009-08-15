@@ -149,10 +149,10 @@ describe "Sitemap::Routes" do
   context 'priority' do 
     it "should parse resources" do
       Sitemap::Routes.draw do |map|
-        map.resources :posts
+        map.resources :posts, :priority => 0.9
       end
       Sitemap::Routes.parse
-      Sitemap::Routes.results.collect {|result| result[:priority]}.should == [1.0, 1.0, 1.0]
+      Sitemap::Routes.results.collect {|result| result[:priority]}.should == [0.9, 0.9, 0.9]
     end
 
     it "should parse connect" do
@@ -165,6 +165,14 @@ describe "Sitemap::Routes" do
   end
 
   context "changefreq" do
+    it "should parse resources" do
+      Sitemap::Routes.draw do |map|
+        map.resources :posts, :changefreq => Sitemap::ChangeFreq::ALWAYS
+      end
+      Sitemap::Routes.parse
+      Sitemap::Routes.results.collect {|result| result[:changefreq]}.should == ['always', 'always', 'always']
+    end
+
     it "should parse connect" do
       Sitemap::Routes.draw do |map|
         map.connect 'posts/:year/:month/:day', :controller => 'posts', :action => 'find_by_date', :substitution => {:model => 'Post', :year => 'year', :month => 'month', :day => 'day'}, :changefreq => Sitemap::ChangeFreq::MONTHLY
