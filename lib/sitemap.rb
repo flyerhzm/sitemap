@@ -25,6 +25,10 @@ module Sitemap
         @@routes << {:path => path, :options => options}
       end
 
+      def add_result(result)
+        @@results << result
+      end
+
       def generate(sitemap_result_file)
         parse
 
@@ -37,6 +41,7 @@ module Sitemap
               xml.url do
                 xml.loc(@@host + result[:location])
                 xml.priority result[:priority]
+                xml.changefreq result[:changefreq] if result[:changefreq]
                 xml.lastmod now
               end
             end
@@ -65,7 +70,7 @@ module Sitemap
           items = path.split('/')
           if items[2].nil?
             # only one item, stop parsing.
-            @@results << {:location => prefix + path, :priority => options[:priority] || @@priority}
+            add_result :location => prefix + path, :changefreq => options[:changefreq], :priority => options[:priority] || @@priority
           elsif items[2] =~ /^:.*id$/
             # second item is an 'id', replace it.
             objects = parent.nil? ? Object.const_get(items[1].singularize.camelize).all : parent.send(items[1])
@@ -73,7 +78,7 @@ module Sitemap
               if items.size > 3
                 parse_path_without_substitution('/' + items[3..-1].join('/'), options, "#{prefix}/#{items[1]}/#{obj.to_param}", obj)
               else
-                @@results << {:location => "#{prefix}/#{items[1]}/#{obj.to_param}", :priority => options[:priority] || @@priority}
+                add_result :location => "#{prefix}/#{items[1]}/#{obj.to_param}", :changefreq => options[:changefreq], :priority => options[:priority] || @@priority
               end
             end
             return nil
@@ -82,7 +87,7 @@ module Sitemap
             if items.size > 2
               parse_path_without_substitution('/' + items[2..-1].join('/'), options, "#{prefix}/#{items[1]}", nil)
             else
-              @@results << {:location => prefix + path, :priority => options[:priority] || @@priority}
+              add_result :location => prefix + path, :changefreq => options[:changefreq], :priority => options[:priority] || @@priority
             end
           end
         rescue
@@ -102,7 +107,7 @@ module Sitemap
             substitution.values.first.each do |value|
               path_dup = path.dup
               path_dup.gsub!(':' + key.to_s, value)
-              @@results << {:location => path_dup, :priority => options[:priority] || @@priority}
+              add_result :location => path_dup, :changefreq => options[:changefreq], :priority => options[:priority] || @@priority
             end
           else
             klazz = Object.const_get(model_name)
@@ -111,13 +116,19 @@ module Sitemap
               substitution.each do |key, value|
                 path_dup.gsub!(':' + key.to_s, obj.send(value).to_s)
               end
-              @@results << {:location => path_dup, :priority => options[:priority] || @@priority}
+              add_result :location => path_dup, :changefreq => options[:changefreq], :priority => options[:priority] || @@priority
             end
           end
         rescue
           puts "can't parse prefix: #{prefix}, path: #{path}, parent: #{parent}"
         end
       end
+    end
+  end
+
+  class ChangeFreq
+    %w(always hourly daily weekly monthly yearly never).each do |const|
+      const_set(const.upcase, const)
     end
   end
 
@@ -149,7 +160,7 @@ module Sitemap
 
     def add_route(path, options = {})
       path = '/' + path if path != '' and !path.start_with?('/')
-      Sitemap::Routes.add_route(path, options)
+      Routes.add_route(path, options)
     end
 
     def method_missing(route_name, *args, &proc)
