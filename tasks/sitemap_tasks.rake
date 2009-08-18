@@ -4,9 +4,12 @@ namespace :sitemap do
   desc "generate sitemap.xml"
   task :generate => :environment do
     sitemap_configure_file = File.join(RAILS_ROOT, 'config/sitemap.rb')
-    sitemap_result_file = File.join(RAILS_ROOT, 'public/sitemap.xml')
     load(sitemap_configure_file)
-    Sitemap::Routes.generate(sitemap_result_file)
+    if ENV['FORMAT'].nil? || ENV['FORMAT'] == 'xml'
+      Sitemap::Routes.generate_xml
+    elsif ENV['FORMAT'] == 'gzip'
+      Sitemap::Routes.generate_xml_gz
+    end      
   end
 
   desc "ping search engine to update sitemap.xml (or specify SEARCH_ENGINE=names, splitted by comma)"
