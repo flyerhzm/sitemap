@@ -1,5 +1,6 @@
 require 'active_support'
 require 'action_controller'
+require 'zlib'
 
 module Sitemap
   class Routes
@@ -29,21 +30,36 @@ module Sitemap
         @@results << result
       end
 
-      def generate(sitemap_result_file)
+      def generate_xml
         parse
-
+        
+        sitemap_result_file = File.join(RAILS_ROOT, 'public/sitemap.xml')  
         File.open(sitemap_result_file, 'w') do |file|
-          xml = Builder::XmlMarkup.new(:target => file, :indent => 2)
-          xml.instruct!
-          xml.urlset(:xmlns => "http://www.sitemaps.org/schemas/sitemap/0.9") do
-            now = Time.now.strftime("%Y-%m-%d")
-            @@results.each do |result|
-              xml.url do
-                xml.loc(@@host + result[:location])
-                xml.priority result[:priority]
-                xml.changefreq result[:changefreq] if result[:changefreq]
-                xml.lastmod now
-              end
+          to_xml(file)
+        end
+      end
+      
+      def generate_xml_gz
+        parse
+        
+        sitemap_result_file = File.join(RAILS_ROOT, 'public/sitemap.xml.gz')
+        File.open(sitemap_result_file, 'w') do |f|
+          gz = Zlib::GzipWriter.new(f)
+          to_xml(gz)
+          gz.close
+        end
+      end
+      
+      def to_xml(target)
+        xml = Builder::XmlMarkup.new(:target => target, :indent => 2)
+        xml.instruct!
+        xml.urlset(:xmlns => "http://www.sitemaps.org/schemas/sitemap/0.9") do
+          now = Time.now.strftime("%Y-%m-%d")
+          @@results.each do |result|
+            xml.url do
+              xml.loc(@@host + result[:location])
+              xml.priority result[:priority]
+              xml.lastmod now
             end
           end
         end
