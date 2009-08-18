@@ -1,7 +1,7 @@
 require 'builder'
 
 namespace :sitemap do
-  desc "generate sitemap.xml"
+  desc "generate sitemap.xml (or specify FORMAT=gzip to generate sitemap.xml.gz)"
   task :generate => :environment do
     sitemap_configure_file = File.join(RAILS_ROOT, 'config/sitemap.rb')
     load(sitemap_configure_file)

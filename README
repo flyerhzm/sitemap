@@ -1,7 +1,7 @@
 Sitemap
 =======
 
-This plugin will generate a sitemap.xml from sitemap.rb whose format is very similar to routes.rb, and ping search engine to update sitemap.xml.
+This plugin will generate a sitemap.xml or sitemap.xml.gz from sitemap.rb whose format is very similar to routes.rb, and ping search engine to update sitemap.xml or sitemap.xml.gz.
 It supports resources, namespace, root, connect, named_route and nested routes like routes.rb and add some additional keyword substitution and priority for sitemap.
 
 
@@ -70,9 +70,9 @@ Example
 
 2. run rake task.
 
-  rake sitemap:generate, the sitemap.xml (version 0.9) will be generated under public directory.
+  rake sitemap:generate or rake sitemap:generate FORMAT=gzip, the sitemap.xml or sitemap.xml.gz (version 0.9) will be generated under public directory.
 
-  rake sitemap:ping or rake sitemap:ping SEARCH_ENGINE=google,bing, tell search engine to update the sitemap.xml, now support google, bing, yahoo and ask.
+  rake sitemap:ping or rake sitemap:ping SEARCH_ENGINE=google,bing FORMAT=gzip, tell search engine to update the sitemap.xml or sitemap.xml.gz, now support google, bing, yahoo and ask.
 
   The generated sitemap.xml is as follows:
  
