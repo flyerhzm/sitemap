@@ -68,9 +68,9 @@ Sitemap::Routes.draw do |map|
 end
 </code></pre>
 
-  *Important*: substitution keyword can only define one model, if you need replace attributes in two models or more, I recommend you define a virtual attribute, or use delegate.
+*Important*: substitution keyword can only define one model, if you need replace attributes in two models or more, I recommend you define a virtual attribute, or use delegate.
 
-  *Important*: You can check the spec/sitemap_spec.rb to see the use of Sitemap::Routes.
+*Important*: You can check the spec/sitemap_spec.rb to see the use of Sitemap::Routes.
 
 
 * run rake task.
