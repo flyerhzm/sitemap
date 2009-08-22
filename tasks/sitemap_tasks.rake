@@ -13,10 +13,12 @@ namespace :sitemap do
   end
 
   desc "ping search engine to update sitemap.xml (or specify SEARCH_ENGINE=names, splitted by comma)"
-  task :ping => :generate do
+  task :ping => :environment do
+    sitemap_configure_file = File.join(RAILS_ROOT, 'config/sitemap.rb')
+    load(sitemap_configure_file)
     engines = ENV['SEARCH_ENGINE'].nil? ? %w(google bing yahoo ask) : ENV['SEARCH_ENGINE'].split(',')
     engines.each do |engine|
-      Sitemap::SearchEngine.send("ping_#{engine}")
+      Sitemap::SearchEngine.send("ping", engine, ENV['FORMAT'] || 'xml')
     end
   end
 end
