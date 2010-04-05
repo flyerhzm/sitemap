@@ -39,8 +39,10 @@ describe "Sitemap::Routes" do
   end
 
   before(:each) do
-    @post1 = Post.new(1, 'post1', DateTime.new(2009, 8, 9, 0, 0, 0))
-    @post2 = Post.new(2, 'post2', DateTime.new(2009, 8, 10, 0, 0, 0))
+    @datetime1 = DateTime.new(2009, 8, 9, 0, 0, 0)
+    @datetime2 = DateTime.new(2009, 8, 10, 0, 0, 0)
+    @post1 = Post.new(1, 'post1', @datetime1)
+    @post2 = Post.new(2, 'post2', @datetime2)
 
     Post.stubs(:all).returns([@post1, @post2])
   end
@@ -189,6 +191,18 @@ describe "Sitemap::Routes" do
       end
       Sitemap::Routes.parse
       Sitemap::Routes.results.collect {|result| result[:changefreq]}.should == ['monthly']
+    end
+  end
+
+  context "lastmod" do
+    it "should get lastmod by resource" do
+      now = Time.now
+      Time.stubs(:now).returns(now)
+      Sitemap::Routes.draw do |map|
+        map.resources :posts
+      end
+      Sitemap::Routes.parse
+      Sitemap::Routes.results.collect {|result| result[:lastmod]}.should == [nil, @datetime1, @datetime2]
     end
   end
 

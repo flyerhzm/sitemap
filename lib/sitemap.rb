@@ -60,7 +60,7 @@ module Sitemap
             xml.url do
               xml.loc(@@host + result[:location])
               xml.priority result[:priority]
-              xml.lastmod now
+              xml.lastmod (result[:lastmod] || Time.now).strftime("%Y/%m/%d")
             end
           end
         end
@@ -95,7 +95,7 @@ module Sitemap
               if items.size > 3
                 parse_path_without_substitution('/' + items[3..-1].join('/'), options, "#{prefix}/#{items[1]}/#{obj.to_param}", obj)
               else
-                add_result :location => "#{prefix}/#{items[1]}/#{obj.to_param}", :changefreq => options[:changefreq], :priority => options[:priority] || @@priority
+                add_result :location => "#{prefix}/#{items[1]}/#{obj.to_param}", :changefreq => options[:changefreq], :priority => options[:priority] || @@priority, :lastmod => (obj.respond_to?(:updated_at) ? obj.updated_at : nil)
               end
             end
             return nil
