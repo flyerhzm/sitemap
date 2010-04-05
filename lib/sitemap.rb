@@ -55,12 +55,11 @@ module Sitemap
         xml = Builder::XmlMarkup.new(:target => target, :indent => 2)
         xml.instruct!
         xml.urlset(:xmlns => "http://www.sitemaps.org/schemas/sitemap/0.9") do
-          now = Time.now.strftime("%Y-%m-%d")
           @@results.each do |result|
             xml.url do
               xml.loc(@@host + result[:location])
               xml.priority result[:priority]
-              xml.lastmod (result[:lastmod] || Time.now).strftime("%Y/%m/%d")
+              xml.lastmod((result[:lastmod] || Time.now).strftime("%Y-%m-%d"))
             end
           end
         end
