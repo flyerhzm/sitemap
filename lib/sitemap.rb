@@ -1,5 +1,6 @@
 require 'active_support'
 require 'action_controller'
+require 'sitemap/resources'
 require 'zlib'
 
 module Sitemap

@@ -1,3 +1,5 @@
+require 'spec_helper'
+
 describe "Sitemap::Routes" do
   class Post
     attr_accessor :id, :name, :updated_at
@@ -112,7 +114,7 @@ describe "Sitemap::Routes" do
         map.connect 'posts/:year/:month/:day', :controller => 'posts', :action => 'find_by_date', :substitution => {:model => 'Post', :year => 'year', :month => 'month', :day => 'day'}
       end
       Sitemap::Routes.parse
-      Sitemap::Routes.results.collect {|result| result[:location]}.should == ['/posts/2009/8/9', '/posts/2009/8/10']
+      Sitemap::Routes.results.collect {|result| result[:location]}.should == ['/posts/2009/8/9', '/posts/2009/8/10', '/posts/2009/8/10']
     end
 
     it "should parse connect with substitution array" do
@@ -142,7 +144,7 @@ describe "Sitemap::Routes" do
         end
       end
       Sitemap::Routes.parse
-      Sitemap::Routes.results.collect {|result| result[:location]}.should == ['/categories', '/categories/1', '/categories/1/posts', '/categories/1/posts/1', '/categories/1/posts/2']
+      Sitemap::Routes.results.collect {|result| result[:location]}.should == ['/categories/1/posts', '/categories/1/posts/1', '/categories/1/posts/2', '/categories', '/categories/1']
     end
   end
 
